@@ -20,15 +20,13 @@
                     <!-- Left Column: Job Description (read-only) -->
                     <v-col cols="12" md="6">
                         <h3>Job Description</h3>
-                        <v-textarea v-model="job.description" label="Job Description" rows="15" outlined
-                            readonly></v-textarea>
+                        <DynamicFormField v-if="job" v-model="job.description" :field="jobDescriptionField" />
                     </v-col>
 
                     <!-- Right Column: Cover Letter -->
                     <v-col cols="12" md="6">
                         <h3>Cover Letter</h3>
-                        <v-textarea v-model="job.coverLetter" label="Generated cover letter" rows="15"
-                            outlined></v-textarea>
+                        <DynamicFormField v-if="job" v-model="job.coverLetter" :field="coverLetterField" />
 
                         <div class="d-flex mt-3" style="gap: 10px;">
                             <v-btn color="primary" @click="saveCoverLetter">Save Cover Letter</v-btn>
@@ -50,6 +48,7 @@ import { ref, onMounted } from "vue";
 import { db } from "../../database/db.js";
 import { useRoute } from "vue-router";
 import { formatDate, statusColor, formatSalary } from "@/utils/jobUtils";
+import DynamicFormField from "@/components/DynamicFormField.vue";
 
 const route = useRoute();
 const job = ref(null);
@@ -57,6 +56,23 @@ const job = ref(null);
 const loadJob = async () => {
     const id = Number(route.params.id);
     job.value = await db.applications.get(id);
+};
+
+const coverLetterField = {
+    key: "coverLetter",
+    label: "Generated Cover Letter",
+    type: "textarea",
+    required: false,
+    rows: 15,
+};
+
+const jobDescriptionField = {
+    key: "description",
+    label: "Job Description",
+    type: "textarea",
+    required: false,
+    rows: 15,
+    readonly: true, 
 };
 
 onMounted(loadJob);
