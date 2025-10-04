@@ -10,30 +10,30 @@
             <!-- Job Info Grid -->
             <!-- Job Info Grid -->
             <v-row class="mt-2" dense align="stretch">
-                <v-col cols="12" md="3">
+                <v-col cols="12" md="2">
                     <v-sheet class="pa-3 d-flex flex-column fill-height justify-center" elevation="1">
                         <strong>Status:</strong>
-                        <v-chip :color="statusColor(job.status)" text-color="white" small>
+                        <v-chip :color="statusColor(job.status)" text-color="white" small class="justify-center">
                             {{ job.status }}
                         </v-chip>
                     </v-sheet>
                 </v-col>
 
-                <v-col cols="12" md="3">
+                <v-col cols="12" md="2">
                     <v-sheet class="pa-3 d-flex flex-column fill-height justify-center" elevation="1">
                         <strong>Date Applied:</strong>
                         <div>{{ formatDate(job.dateApplied) }}</div>
                     </v-sheet>
                 </v-col>
 
-                <v-col cols="12" md="3">
+                <v-col cols="12" md="2">
                     <v-sheet class="pa-3 d-flex flex-column fill-height justify-center" elevation="1">
                         <strong>Salary:</strong>
                         <div>{{ job.salary ? formatSalary(job.salary) : "N/A" }}</div>
                     </v-sheet>
                 </v-col>
 
-                <v-col cols="12" md="3">
+                <v-col cols="12" md="6">
                     <v-sheet class="pa-3 d-flex flex-column fill-height justify-center" elevation="1">
                         <strong>Company:</strong>
                         <div>{{ job.company }}</div>
