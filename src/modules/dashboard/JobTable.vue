@@ -7,7 +7,7 @@
             {{ formatDate(item.dateApplied) }}
         </template>
         <template #item.salary="{ item }">
-            {{ item.salary ? `$${item.salary}` : "N/A" }}
+            {{ item.salary ? formatSalary(item.salary) : "N/A" }}
         </template>
         <template #item.actions="{ item }">
             <v-btn color="primary" text
@@ -19,6 +19,7 @@
 <script setup>
 import { useJobStore } from "@/stores/jobStore";
 import { onMounted } from "vue";
+import { formatDate, statusColor, formatSalary } from "@/utils/jobUtils";
 
 const store = useJobStore();
 
@@ -30,23 +31,6 @@ const headers = [
     { title: "Date Applied", value: "dateApplied" },
     { title: "Actions", value: "actions", sortable: false },
 ];
-
-const statusColor = (s) => {
-    switch (s) {
-        case "Applied": return "blue";
-        case "Interview": return "orange";
-        case "Offer": return "green";
-        case "Rejected": return "red";
-        default: return "grey";
-    }
-};
-
-const formatDate = (value) => {
-    if (!value) return "";
-    const d = value instanceof Date ? value : new Date(value);
-    if (isNaN(d.getTime())) return String(value);
-    return d.toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric", year: "numeric" });
-};
 
 onMounted(() => store.loadJobs());
 </script>

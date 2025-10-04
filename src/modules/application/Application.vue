@@ -12,7 +12,7 @@
                     {{ job.status }}
                 </v-chip>
                 <span class="ml-3"><strong>Date Applied:</strong> {{ formatDate(job.dateApplied) }}</span>
-                <span class="ml-3"><strong>Salary:</strong> {{ job.salary ? `$${job.salary}` : "N/A" }}</span>
+                <span class="ml-3"><strong>Salary:</strong> {{ job.salary ? formatSalary(job.salary) : "N/A" }}</span>
             </v-card-subtitle>
 
             <v-card-text>
@@ -49,6 +49,7 @@
 import { ref, onMounted } from "vue";
 import { db } from "../../database/db.js";
 import { useRoute } from "vue-router";
+import { formatDate, statusColor, formatSalary } from "@/utils/jobUtils";
 
 const route = useRoute();
 const job = ref(null);
@@ -78,30 +79,4 @@ Sincerely,
 [Your Name]`;
 };
 
-const formatDate = (value) => {
-    if (!value) return "";
-    const d = value instanceof Date ? value : new Date(value);
-    if (isNaN(d.getTime())) return String(value);
-    return d.toLocaleDateString("en-US", {
-        weekday: "long",
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-    });
-};
-
-const statusColor = (s) => {
-    switch (s) {
-        case "Applied":
-            return "blue";
-        case "Interview":
-            return "orange";
-        case "Offer":
-            return "green";
-        case "Rejected":
-            return "red";
-        default:
-            return "grey";
-    }
-};
 </script>
