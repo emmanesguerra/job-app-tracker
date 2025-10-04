@@ -44,23 +44,23 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from "vue";
+import { reactive, onMounted } from "vue";
+import { useProfileStore } from "@/stores/profileStore";
 import DynamicFormField from "@/components/DynamicFormField.vue";
 
-interface Profile {
-    fullName: string;
-    experience: number | null;
-    skills: string[];
-    bio: string;
-}
+// Use the store
+const profileStore = useProfileStore();
 
-const profile = reactive<Profile>({
+// Define reactive profile object
+const profile = reactive({
+    id: null as number | null,   // store the ID for updating
     fullName: "",
-    experience: null,
-    skills: [],
-    bio: "",
+    experience: null as number | null,
+    skills: [] as string[],
+    bio: ""
 });
 
+// Form field definitions
 const fields = {
     fullName: { key: "fullName", label: "Full Name", type: "text", required: true },
     experience: { key: "experience", label: "Years of Experience", type: "number", required: false },
@@ -68,9 +68,36 @@ const fields = {
     bio: { key: "bio", label: "Bio / Summary", type: "textarea", rows: 5, required: false },
 };
 
-const saveProfile = () => {
-    console.log("Profile saved:", profile);
-    alert("Profile saved!");
-};
+// Load profile on mount (assume single profile)
+onMounted(async () => {
+    await profileStore.loadProfiles();
+    if (profileStore.profiles.length > 0) {
+        const p = profileStore.profiles[0];
+        profile.id = p.id ?? null;
+        profile.fullName = p.fullName;
+        profile.experience = p.experience;
+        profile.skills = p.skills;
+        profile.bio = p.bio;
+    }
+});
 
+// Save or update profile
+const saveProfile = async () => {
+    const data = {
+        fullName: profile.fullName,
+        experience: profile.experience,
+        skills: profile.skills,
+        bio: profile.bio
+    };
+
+    if (profile.id) {
+        await profileStore.updateProfile(profile.id, data);
+        alert("Profile updated!");
+    } else {
+        await profileStore.addProfile(data);
+        alert("Profile saved!");
+        await profileStore.loadProfiles();
+        profile.id = profileStore.profiles[0].id ?? null;
+    }
+};
 </script>
