@@ -8,14 +8,25 @@
             </v-card-title>
 
             <!-- Job Info Grid -->
-            <!-- Job Info Grid -->
             <v-row class="mt-2" dense align="stretch">
+                <!-- Status with Dropdown -->
                 <v-col cols="12" md="2">
                     <v-sheet class="pa-3 d-flex flex-column fill-height justify-center" elevation="1">
                         <strong>Status:</strong>
-                        <v-chip :color="statusColor(job.status)" text-color="white" small class="justify-center">
-                            {{ job.status }}
-                        </v-chip>
+                        <v-menu v-model="statusMenu" offset-y>
+                            <template #activator="{ props }">
+                                <v-chip v-bind="props" :color="statusColor(job.status)" text-color="white" small
+                                    class="cursor-pointer justify-center">
+                                    {{ job.status }}
+                                </v-chip>
+                            </template>
+
+                            <v-list>
+                                <v-list-item v-for="s in statuses" :key="s" @click="updateStatus(s)">
+                                    <v-list-item-title>{{ s }}</v-list-item-title>
+                                </v-list-item>
+                            </v-list>
+                        </v-menu>
                     </v-sheet>
                 </v-col>
 
@@ -41,7 +52,6 @@
                 </v-col>
             </v-row>
 
-
             <!-- Job Description & Cover Letter -->
             <v-card-text class="mt-4">
                 <v-row>
@@ -63,14 +73,13 @@
             </v-card-text>
         </v-card>
 
-
         <div v-else>
             <v-alert type="info">Loading...</v-alert>
         </div>
     </v-container>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted } from "vue";
 import { db } from "../../database/db.js";
 import { useRoute } from "vue-router";
@@ -78,7 +87,19 @@ import { formatDate, statusColor, formatSalary } from "@/utils/jobUtils";
 import DynamicFormField from "@/components/DynamicFormField.vue";
 
 const route = useRoute();
-const job = ref(null);
+const job = ref < any > (null);
+
+// Status dropdown
+const statusMenu = ref(false);
+const statuses = ["Applied", "Interview", "Offer", "Rejected"];
+
+const updateStatus = async (newStatus: string) => {
+    if (!job.value) return;
+
+    await db.applications.update(job.value.id, { status: newStatus });
+    job.value.status = newStatus;
+    statusMenu.value = false;
+};
 
 const loadJob = async () => {
     const id = Number(route.params.id);
@@ -113,7 +134,6 @@ const saveCoverLetter = async () => {
 const generateCoverLetter = () => {
     if (!job.value) return;
 
-    // Example placeholder; can replace with AI API
     job.value.coverLetter = `Dear Hiring Manager,
 
 I am excited to apply for the position of ${job.value.title} at ${job.value.company}. With my skills and experience, I believe I can contribute to your team.
@@ -121,5 +141,4 @@ I am excited to apply for the position of ${job.value.title} at ${job.value.comp
 Sincerely,
 [Your Name]`;
 };
-
 </script>
