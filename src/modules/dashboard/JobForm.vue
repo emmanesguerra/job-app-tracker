@@ -3,43 +3,49 @@
         <v-card-title>Add New Job</v-card-title>
         <v-card-text>
             <v-form @submit.prevent="submitJob">
-                <v-text-field v-model="company" label="Company" required />
-                <v-text-field v-model="title" label="Job Title" required />
-                <v-textarea v-model="description" label="Job Description" rows="4" />
-                <v-text-field v-model="salary" label="Salary" type="number" min="0" />
-                <v-select v-model="status" :items="['Applied', 'Interview', 'Offer', 'Rejected']" label="Status" />
-                <v-btn type="submit" color="primary" class="mt-3">Add Job</v-btn>
+                <DynamicFormField v-for="field in fields" :key="field.key" :field="field" v-model="form[field.key]" />
+                <v-btn type="submit" color="primary">Add Job</v-btn>
             </v-form>
         </v-card-text>
     </v-card>
 </template>
 
-<script setup>
-import { ref } from "vue";
+<script setup lang="ts">
+import { reactive } from "vue";
 import { useJobStore } from "@/stores/jobStore";
+import DynamicFormField from "@/components/DynamicFormField.vue";
 
 const store = useJobStore();
-const company = ref("");
-const title = ref("");
-const description = ref("");
-const salary = ref("");
-const status = ref("Applied");
+
+type FormFields = {
+    company: string;
+    title: string;
+    description: string;
+    salary: number | null;
+    status: string;
+    [key: string]: string | number | null;
+};
+
+const form = reactive<FormFields>({
+    company: "",
+    title: "",
+    description: "",
+    salary: null,
+    status: "Applied",
+});
+
+const fields = [
+    { key: "company", label: "Company", type: "text", required: true },
+    { key: "title", label: "Job Title", type: "text", required: true },
+    { key: "description", label: "Job Description", type: "textarea", required: false, rows: 4 },
+    { key: "salary", label: "Salary", type: "number", required: false },
+    { key: "status", label: "Status", type: "select", options: ["Applied", "Interview", "Offer", "Rejected"], required: true },
+];
 
 const submitJob = async () => {
-    await store.addJob({
-        company: company.value,
-        title: title.value,
-        description: description.value,
-        salary: salary.value,
-        status: status.value,
-        dateApplied: new Date(),
-        coverLetter: "",
+    await store.addJob(form);
+    Object.keys(form).forEach(key => {
+        (form as any)[key as keyof FormFields] = key === "status" ? "Applied" : key === "salary" ? null : "";
     });
-
-    company.value = "";
-    title.value = "";
-    description.value = "";
-    salary.value = "";
-    status.value = "Applied";
 };
 </script>
