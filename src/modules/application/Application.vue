@@ -9,20 +9,18 @@
 
             <!-- Job Info Grid -->
             <v-row class="mt-2" dense align="stretch">
-                <!-- Status with Dropdown -->
                 <v-col cols="12" md="2">
                     <v-sheet class="pa-3 d-flex flex-column fill-height justify-center" elevation="1">
                         <strong>Status:</strong>
                         <v-menu v-model="statusMenu" offset-y>
                             <template #activator="{ props }">
                                 <v-chip v-bind="props" :color="statusColor(job.status)" text-color="white" small
-                                    class="cursor-pointer justify-center">
+                                    class="justify-center">
                                     {{ job.status }}
                                 </v-chip>
                             </template>
-
                             <v-list>
-                                <v-list-item v-for="s in statuses" :key="s" @click="updateStatus(s)">
+                                <v-list-item v-for="s in statuses" :key="s" @click="changeStatus(s)">
                                     <v-list-item-title>{{ s }}</v-list-item-title>
                                 </v-list-item>
                             </v-list>
@@ -81,30 +79,18 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
-import { db } from "../../database/db.js";
 import { useRoute } from "vue-router";
-import { formatDate, statusColor, formatSalary } from "@/utils/jobUtils";
 import DynamicFormField from "@/components/DynamicFormField.vue";
+import { useJobStore } from "@/stores/jobStore";
+import { formatDate, statusColor, formatSalary } from "@/utils/jobUtils";
+import type { Job } from "@/database/db";
 
 const route = useRoute();
-const job = ref < any > (null);
+const store = useJobStore();
 
-// Status dropdown
+const job = ref<Job | null>(null);
 const statusMenu = ref(false);
 const statuses = ["Applied", "Interview", "Offer", "Rejected"];
-
-const updateStatus = async (newStatus: string) => {
-    if (!job.value) return;
-
-    await db.applications.update(job.value.id, { status: newStatus });
-    job.value.status = newStatus;
-    statusMenu.value = false;
-};
-
-const loadJob = async () => {
-    const id = Number(route.params.id);
-    job.value = await db.applications.get(id);
-};
 
 const coverLetterField = {
     key: "coverLetter",
@@ -123,17 +109,19 @@ const jobDescriptionField = {
     readonly: true,
 };
 
-onMounted(loadJob);
+const loadJob = async () => {
+    const id = Number(route.params.id);
+    job.value = await store.getJobById(id);
+};
 
 const saveCoverLetter = async () => {
     if (!job.value) return;
-    await db.applications.update(job.value.id, { coverLetter: job.value.coverLetter });
+    await store.updateCoverLetter(job.value.id, job.value.coverLetter);
     alert("Cover letter saved!");
 };
 
 const generateCoverLetter = () => {
     if (!job.value) return;
-
     job.value.coverLetter = `Dear Hiring Manager,
 
 I am excited to apply for the position of ${job.value.title} at ${job.value.company}. With my skills and experience, I believe I can contribute to your team.
@@ -141,4 +129,13 @@ I am excited to apply for the position of ${job.value.title} at ${job.value.comp
 Sincerely,
 [Your Name]`;
 };
+
+const changeStatus = async (newStatus: string) => {
+    if (!job.value) return;
+    await store.updateJobStatus(job.value.id, newStatus);
+    job.value.status = newStatus;
+    statusMenu.value = false;
+};
+
+onMounted(loadJob);
 </script>

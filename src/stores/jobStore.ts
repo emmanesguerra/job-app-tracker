@@ -13,7 +13,9 @@ export const useJobStore = defineStore("jobStore", () => {
         );
     };
 
-    const addJob = async (job: Omit<Job, "id" | "dateApplied" | "coverLetter">): Promise<void> => {
+    const addJob = async (
+        job: Omit<Job, "id" | "dateApplied" | "coverLetter">
+    ): Promise<void> => {
         await db.applications.add({
             ...job,
             dateApplied: new Date(),
@@ -26,9 +28,24 @@ export const useJobStore = defineStore("jobStore", () => {
         return await db.applications.get(id);
     };
 
-    const updateJob = async (id: number, data: Partial<Omit<Job, "id">>): Promise<void> => {
+    const updateJob = async (
+        id: number,
+        data: Partial<Omit<Job, "id">>
+    ): Promise<void> => {
         await db.applications.update(id, data);
         await loadJobs();
+    };
+
+    const updateJobStatus = async (id: number, status: string): Promise<void> => {
+        await db.applications.update(id, { status });
+        const index = jobs.value.findIndex((j) => j.id === id);
+        if (index !== -1) jobs.value[index].status = status;
+    };
+
+    const updateCoverLetter = async (id: number, coverLetter: string): Promise<void> => {
+        await db.applications.update(id, { coverLetter });
+        const index = jobs.value.findIndex((j) => j.id === id);
+        if (index !== -1) jobs.value[index].coverLetter = coverLetter;
     };
 
     const deleteJob = async (id: number): Promise<void> => {
@@ -42,6 +59,8 @@ export const useJobStore = defineStore("jobStore", () => {
         addJob,
         getJobById,
         updateJob,
+        updateJobStatus,
+        updateCoverLetter,
         deleteJob,
     };
 });
