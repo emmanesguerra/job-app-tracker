@@ -1,6 +1,9 @@
 <template>
     <v-container class="mt-5">
-        <v-btn text @click="$router.push('/')">← Back to Dashboard</v-btn>
+        <div class="d-flex justify-space-between mb-4">
+            <v-btn text color="black" @click="$router.push('/')">← Back to Dashboard</v-btn>
+            <v-btn text color="primary" @click="$router.push('/profile')">Continue to Profile →</v-btn>
+        </div>
 
         <v-card v-if="job" class="mt-4">
             <v-card-title class="text-center font-weight-bold text-uppercase">
