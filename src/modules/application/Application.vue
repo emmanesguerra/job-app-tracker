@@ -3,27 +3,53 @@
         <v-btn text @click="$router.push('/')">← Back to Dashboard</v-btn>
 
         <v-card v-if="job" class="mt-4">
-            <v-card-title>
-                {{ job.title }} at {{ job.company }}
+            <v-card-title class="text-center font-weight-bold text-uppercase">
+                {{ job.title }}
             </v-card-title>
 
-            <v-card-subtitle>
-                <v-chip :color="statusColor(job.status)" text-color="white" small>
-                    {{ job.status }}
-                </v-chip>
-                <span class="ml-3"><strong>Date Applied:</strong> {{ formatDate(job.dateApplied) }}</span>
-                <span class="ml-3"><strong>Salary:</strong> {{ job.salary ? formatSalary(job.salary) : "N/A" }}</span>
-            </v-card-subtitle>
+            <!-- Job Info Grid -->
+            <!-- Job Info Grid -->
+            <v-row class="mt-2" dense align="stretch">
+                <v-col cols="12" md="3">
+                    <v-sheet class="pa-3 d-flex flex-column fill-height justify-center" elevation="1">
+                        <strong>Status:</strong>
+                        <v-chip :color="statusColor(job.status)" text-color="white" small>
+                            {{ job.status }}
+                        </v-chip>
+                    </v-sheet>
+                </v-col>
 
-            <v-card-text>
+                <v-col cols="12" md="3">
+                    <v-sheet class="pa-3 d-flex flex-column fill-height justify-center" elevation="1">
+                        <strong>Date Applied:</strong>
+                        <div>{{ formatDate(job.dateApplied) }}</div>
+                    </v-sheet>
+                </v-col>
+
+                <v-col cols="12" md="3">
+                    <v-sheet class="pa-3 d-flex flex-column fill-height justify-center" elevation="1">
+                        <strong>Salary:</strong>
+                        <div>{{ job.salary ? formatSalary(job.salary) : "N/A" }}</div>
+                    </v-sheet>
+                </v-col>
+
+                <v-col cols="12" md="3">
+                    <v-sheet class="pa-3 d-flex flex-column fill-height justify-center" elevation="1">
+                        <strong>Company:</strong>
+                        <div>{{ job.company }}</div>
+                    </v-sheet>
+                </v-col>
+            </v-row>
+
+
+            <!-- Job Description & Cover Letter -->
+            <v-card-text class="mt-4">
                 <v-row>
-                    <!-- Left Column: Job Description (read-only) -->
                     <v-col cols="12" md="6">
                         <h3>Job Description</h3>
                         <DynamicFormField v-if="job" v-model="job.description" :field="jobDescriptionField" />
                     </v-col>
 
-                    <!-- Right Column: Cover Letter -->
                     <v-col cols="12" md="6">
                         <h3>Cover Letter</h3>
                         <DynamicFormField v-if="job" v-model="job.coverLetter" :field="coverLetterField" />
@@ -36,6 +62,7 @@
                 </v-row>
             </v-card-text>
         </v-card>
+
 
         <div v-else>
             <v-alert type="info">Loading...</v-alert>
@@ -72,7 +99,7 @@ const jobDescriptionField = {
     type: "textarea",
     required: false,
     rows: 15,
-    readonly: true, 
+    readonly: true,
 };
 
 onMounted(loadJob);
