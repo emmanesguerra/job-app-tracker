@@ -67,11 +67,24 @@
 
                     <v-col cols="12" md="6">
                         <h3>Cover Letter</h3>
-                        <DynamicFormField v-if="job" v-model="job.coverLetter" :field="coverLetterField" />
+
+                        <div class="position-relative">
+                            <DynamicFormField v-if="job" v-model="job.coverLetter" :field="coverLetterField"
+                                :disabled="isGenerating" />
+
+                            <!-- Loading spinner overlay -->
+                            <div v-if="isGenerating" class="cover-letter-spinner d-flex align-center justify-center">
+                                <v-progress-circular indeterminate color="primary"></v-progress-circular>
+                            </div>
+                        </div>
 
                         <div class="d-flex mt-3" style="gap: 10px;">
-                            <v-btn color="primary" @click="saveCoverLetter">Save Cover Letter</v-btn>
-                            <v-btn color="secondary" @click="generateCoverLetter">Generate Cover Letter</v-btn>
+                            <v-btn color="primary" @click="saveCoverLetter" :disabled="isGenerating">
+                                Save Cover Letter
+                            </v-btn>
+                            <v-btn color="secondary" @click="generateCoverLetter" :disabled="isGenerating">
+                                Generate Cover Letter
+                            </v-btn>
                         </div>
                     </v-col>
                 </v-row>
@@ -102,6 +115,7 @@ const profileStore = useProfileStore();
 const job = ref<Job | null>(null);
 const statusMenu = ref(false);
 const statuses = ["Applied", "Interview", "Offer", "Rejected"];
+const isGenerating = ref(false);
 
 const coverLetterField = {
     key: "coverLetter",
@@ -142,9 +156,16 @@ const generateCoverLetter = async () => {
         return;
     }
 
-    job.value.coverLetter = await generateCoverLetterAI(job.value, profile);
-
-    console.log("✅ Generated Cover Letter:", job.value.coverLetter);
+    try {
+        isGenerating.value = true;
+        job.value.coverLetter = await generateCoverLetterAI(job.value, profile);
+        console.log("✅ Generated Cover Letter:", job.value.coverLetter);
+    } catch (error) {
+        console.error(error);
+        alert("Failed to generate cover letter.");
+    } finally {
+        isGenerating.value = false;
+    }
 };
 
 const changeStatus = async (newStatus: string) => {
@@ -168,3 +189,15 @@ const removeApplication = async () => {
 
 onMounted(loadJob);
 </script>
+
+<style scoped>
+.cover-letter-spinner {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.6);
+    z-index: 10;
+}
+</style>

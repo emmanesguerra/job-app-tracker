@@ -35,7 +35,7 @@ Write a professional, natural, and personalized cover letter based on the follow
 - Bio: ${profile.bio || ""}
 - Skills: ${profile.skills || ""}
 
-Please keep it concise, engaging, and relevant to the role.
+Please keep it concise, engaging, and relevant to the role and only return the letter body. 
 `;
 
     try {
