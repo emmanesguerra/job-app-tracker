@@ -59,6 +59,10 @@
                     <v-col cols="12" md="6">
                         <h3>Job Description</h3>
                         <DynamicFormField v-if="job" v-model="job.description" :field="jobDescriptionField" />
+
+                        <div class="d-flex mt-4 justify-start">
+                            <v-btn color="error" @click="removeApplication">Remove Application</v-btn>
+                        </div>
                     </v-col>
 
                     <v-col cols="12" md="6">
@@ -82,7 +86,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import DynamicFormField from "@/components/DynamicFormField.vue";
 import { useJobStore } from "@/stores/jobStore";
 import { formatDate, statusColor, formatSalary } from "@/utils/jobUtils";
@@ -91,6 +95,7 @@ import type { Job } from "@/database/db";
 import { useProfileStore } from "@/stores/profileStore";
 
 const route = useRoute();
+const router = useRouter();
 const store = useJobStore();
 const profileStore = useProfileStore();
 
@@ -147,6 +152,18 @@ const changeStatus = async (newStatus: string) => {
     await store.updateJobStatus(job.value.id, newStatus);
     job.value.status = newStatus;
     statusMenu.value = false;
+};
+
+const removeApplication = async () => {
+    if (!job.value) return;
+
+    const confirmDelete = confirm(
+        `Are you sure you want to remove your application for "${job.value.title}"?`
+    );
+    if (!confirmDelete) return;
+
+    await store.deleteJob(job.value.id);
+    router.push("/");
 };
 
 onMounted(loadJob);
