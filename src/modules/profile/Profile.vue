@@ -12,22 +12,18 @@
 
                     <v-card-text>
                         <v-row dense>
-                            <!-- Full Name -->
                             <v-col cols="12" md="8">
                                 <DynamicFormField v-model="profile.fullName" :field="fields.fullName" />
                             </v-col>
 
-                            <!-- Years of Experience -->
                             <v-col cols="12" md="4">
                                 <DynamicFormField v-model="profile.experience" :field="fields.experience" />
                             </v-col>
 
-                            <!-- Skills -->
                             <v-col cols="12">
                                 <DynamicFormField v-model="profile.skills" :field="fields.skills" />
                             </v-col>
 
-                            <!-- Bio / Summary -->
                             <v-col cols="12">
                                 <DynamicFormField v-model="profile.bio" :field="fields.bio" />
                             </v-col>
@@ -48,19 +44,16 @@ import { reactive, onMounted } from "vue";
 import { useProfileStore } from "@/stores/profileStore";
 import DynamicFormField from "@/components/DynamicFormField.vue";
 
-// Use the store
 const profileStore = useProfileStore();
 
-// Define reactive profile object
 const profile = reactive({
-    id: null as number | null,   // store the ID for updating
+    id: null as number | null,
     fullName: "",
     experience: null as number | null,
     skills: [] as string[],
     bio: ""
 });
 
-// Form field definitions
 const fields = {
     fullName: { key: "fullName", label: "Full Name", type: "text", required: true },
     experience: { key: "experience", label: "Years of Experience", type: "number", required: false },
@@ -68,7 +61,6 @@ const fields = {
     bio: { key: "bio", label: "Bio / Summary", type: "textarea", rows: 5, required: false },
 };
 
-// Load profile on mount (assume single profile)
 onMounted(async () => {
     await profileStore.loadProfiles();
     if (profileStore.profiles.length > 0) {
@@ -81,7 +73,6 @@ onMounted(async () => {
     }
 });
 
-// Save or update profile
 const saveProfile = async () => {
     const data = {
         fullName: profile.fullName,

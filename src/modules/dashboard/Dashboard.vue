@@ -1,5 +1,5 @@
 <template>
-    <v-container class="mt-5">
+    <v-container :max-width="$vuetify.display.width > 1200 ? 1800 : '100%'" fluid>
         <v-row>
             <v-col cols="12" md="3">
                 <JobForm />

@@ -86,10 +86,13 @@ import { useRoute } from "vue-router";
 import DynamicFormField from "@/components/DynamicFormField.vue";
 import { useJobStore } from "@/stores/jobStore";
 import { formatDate, statusColor, formatSalary } from "@/utils/jobUtils";
+import { generateCoverLetterAI } from "@/utils/coverLetterUtils";
 import type { Job } from "@/database/db";
+import { useProfileStore } from "@/stores/profileStore";
 
 const route = useRoute();
 const store = useJobStore();
+const profileStore = useProfileStore();
 
 const job = ref<Job | null>(null);
 const statusMenu = ref(false);
@@ -123,14 +126,20 @@ const saveCoverLetter = async () => {
     alert("Cover letter saved!");
 };
 
-const generateCoverLetter = () => {
+const generateCoverLetter = async () => {
     if (!job.value) return;
-    job.value.coverLetter = `Dear Hiring Manager,
 
-I am excited to apply for the position of ${job.value.title} at ${job.value.company}. With my skills and experience, I believe I can contribute to your team.
+    await profileStore.loadProfiles();
+    const profile = profileStore.profiles[0];
 
-Sincerely,
-[Your Name]`;
+    if (!profile) {
+        alert("No profile found. Please create a profile first.");
+        return;
+    }
+
+    job.value.coverLetter = await generateCoverLetterAI(job.value, profile);
+
+    console.log("✅ Generated Cover Letter:", job.value.coverLetter);
 };
 
 const changeStatus = async (newStatus: string) => {
